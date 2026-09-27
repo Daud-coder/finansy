@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Финансы</title>
+  <meta name="theme-color" content="#F4F2EC" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101312" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Финансы">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Вход -->
+<section class="lock" id="lock" hidden>
+  <div class="lock__box">
+    <img src="icons/icon-192.png" alt="" width="72" height="72">
+    <h1>Финансы</h1>
+    <p>Введи код, который задал в таблице:<br><b>Финансы → Код для приложения</b></p>
+    <form id="lockForm" autocomplete="off">
+      <input id="pinInput" type="password" inputmode="text" placeholder="Код" autocomplete="current-password" required minlength="6">
+      <button class="btn btn--primary" type="submit">Войти</button>
+    </form>
+    <p class="lock__err" id="lockErr" role="alert"></p>
+  </div>
+</section>
+
+<!-- Приложение -->
+<div class="app" id="app" hidden>
+  <header class="top">
+    <button class="icon-btn" id="prevM" aria-label="Предыдущий месяц"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="top__m">
+      <h1 id="monthTitle">—</h1>
+      <p id="syncNote" class="top__note"></p>
+    </div>
+    <button class="icon-btn" id="nextM" aria-label="Следующий месяц"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+  </header>
+
+  <main>
+    <!-- Обзор -->
+    <section class="view" data-view="overview">
+      <div class="hero">
+        <p class="hero__label">Потрачено</p>
+        <p class="hero__sum" id="spent">0 ₴</p>
+        <p class="hero__cmp" id="cmp"></p>
+        <div class="hero__row">
+          <div><span>Доходы</span><b id="income">0 ₴</b></div>
+          <div><span>Итог</span><b id="net">0 ₴</b></div>
+          <div><span>В день</span><b id="perDay">0 ₴</b></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__head"><h2>По категориям</h2></div>
+        <div class="donut-wrap">
+          <svg class="donut" id="donut" viewBox="0 0 120 120" role="img" aria-label="Расходы по категориям"></svg>
+          <div class="donut__center" id="donutCenter"></div>
+        </div>
+        <ul class="legend" id="legend"></ul>
+      </div>
+
+      <div class="card">
+        <div class="card__head"><h2>По дням</h2><span class="card__sub" id="daysSub"></span></div>
+        <div class="bars" id="bars"></div>
+      </div>
+
+      <div class="card">
+        <div class="card__head"><h2>По месяцам</h2><span class="card__sub">расходы, последние 6</span></div>
+        <div class="months" id="months"></div>
+      </div>
+    </section>
+
+    <!-- Операции -->
+    <section class="view" data-view="ops" hidden>
+      <div class="seg" role="tablist" id="opsFilter">
+        <button role="tab" aria-selected="true" data-f="all">Все</button>
+        <button role="tab" aria-selected="false" data-f="expense">Расходы</button>
+        <button role="tab" aria-selected="false" data-f="income">Доходы</button>
+      </div>
+      <div id="opsList"></div>
+    </section>
+
+    <!-- Бюджеты -->
+    <section class="view" data-view="budgets" hidden>
+      <div class="card budget-total" id="budgetTotal"></div>
+      <p class="hint">Нажми на категорию, чтобы задать лимит на месяц.</p>
+      <ul class="blist" id="budgetList"></ul>
+    </section>
+  </main>
+
+  <button class="fab" id="fab" aria-label="Добавить запись"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+
+  <nav class="tabs" aria-label="Разделы">
+    <button data-tab="overview" aria-current="page"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 4"/></svg>Обзор</button>
+    <button data-tab="ops"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Операции</button>
+    <button data-tab="budgets"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg>Бюджеты</button>
+  </nav>
+</div>
+
+<!-- Добавление -->
+<div class="sheet-bg" id="sheetBg" hidden></div>
+<section class="sheet" id="addSheet" role="dialog" aria-modal="true" aria-labelledby="addTitle" hidden>
+  <div class="sheet__grab"></div>
+  <h2 id="addTitle">Новая запись</h2>
+  <p class="hint">Как голосом: «Кофе 80 и такси 150», «Вчера продукты 1200 наличкой», «Пришла зарплата 40 тысяч». Для голоса — микрофон на клавиатуре.</p>
+  <form id="addForm">
+    <textarea id="addText" rows="3" placeholder="Кофе 80" required></textarea>
+    <div class="chips" id="chips"></div>
+    <button class="btn btn--primary btn--block" type="submit" id="addBtn">Записать</button>
+  </form>
+  <p class="sheet__res" id="addRes" role="status"></p>
+</section>
+
+<!-- Бюджет -->
+<section class="sheet" id="budgetSheet" role="dialog" aria-modal="true" aria-labelledby="bTitle" hidden>
+  <div class="sheet__grab"></div>
+  <h2 id="bTitle">Бюджет</h2>
+  <p class="hint" id="bHint"></p>
+  <form id="budgetForm">
+    <label class="field"><span>Лимит на месяц, ₴</span><input id="bAmount" type="number" inputmode="numeric" min="0" step="50" placeholder="0 — без лимита"></label>
+    <button class="btn btn--primary btn--block" type="submit">Сохранить</button>
+  </form>
+  <p class="sheet__res" id="bRes" role="status"></p>
+</section>
+
+<!-- Удаление -->
+<section class="sheet" id="opSheet" role="dialog" aria-modal="true" aria-labelledby="oTitle" hidden>
+  <div class="sheet__grab"></div>
+  <h2 id="oTitle">Запись</h2>
+  <div id="opInfo" class="opinfo"></div>
+  <button class="btn btn--danger btn--block" id="delBtn">Удалить</button>
+  <button class="btn btn--ghost btn--block" data-close>Отмена</button>
+  <p class="sheet__res" id="oRes" role="status"></p>
+</section>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
