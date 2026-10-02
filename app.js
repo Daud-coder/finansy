@@ -111,6 +111,29 @@
     if (state.tab === 'overview') renderOverview();
     if (state.tab === 'ops') renderOps();
     if (state.tab === 'budgets') renderBudgets();
+    if (state.tab === 'more') renderMore();
+  }
+
+  function renderMore() {
+    var d = state.data, debts = d.debts || [], goals = d.goals || [], rec = d.recurring || [];
+    var owe = debts.filter(function (x) { return x.balance > 0; }).reduce(function (s, x) { return s + x.balance; }, 0);
+    $('#debtSub').textContent = owe ? 'тебе должны ' + money(owe) : '';
+    $('#debtList').innerHTML = debts.length ? debts.sort(function (a, b) { return b.balance - a.balance; }).map(function (x) {
+      return '<li><b>' + esc(x.person) + '</b><span class="' + (x.balance > 0 ? 'pos' : 'neg') + '">' + money(Math.abs(x.balance)) + '</span><small>' + (x.balance > 0 ? 'должен тебе' : 'ты должен') + '</small></li>';
+    }).join('') : '<li class="empty">Долгов нет — все в расчёте</li>';
+    $('#goalList').innerHTML = goals.length ? goals.map(function (g) {
+      var pct = g.target ? Math.min(100, g.saved / g.target * 100) : 0;
+      return '<li><b>' + esc(g.name) + '</b><span>' + money(g.saved) + '</span>' +
+        (g.target ? '<div class="track"><i style="width:' + pct + '%"></i></div><small>' + Math.round(pct) + '% из ' + money(g.target) + ' · осталось ' + money(Math.max(0, g.target - g.saved)) + '</small>' : '') + '</li>';
+    }).join('') : '<li class="empty">Целей пока нет</li>';
+    var recTotal = rec.filter(function (r) { return r.type === 'expense'; }).reduce(function (s, r) { return s + r.amount; }, 0);
+    $('#recSub').textContent = recTotal ? money(recTotal) + ' в месяц' : '';
+    $('#recList').innerHTML = rec.length ? rec.sort(function (a, b) { return a.day - b.day; }).map(function (r) {
+      return '<li><b>' + esc(r.name) + '</b><span class="' + (r.type === 'income' ? 'pos' : '') + '">' + (r.type === 'income' ? '+' : '') + money(r.amount) + '</span><small>каждое ' + r.day + '-е · ' + esc(r.category) + '</small></li>';
+    }).join('') : '<li class="empty">Регулярных платежей нет</li>';
+    $('#connList').innerHTML =
+      '<li><b>Telegram</b><span class="' + (d.telegram ? 'pos' : '') + '">' + (d.telegram ? 'подключён' : '—') + '</span><small>напоминания о платежах, итоги недели и месяца</small></li>' +
+      '<li><b>Monobank</b><span class="' + (d.mono ? 'pos' : '') + '">' + (d.mono ? 'подключён' : '—') + '</span><small>оплаты картой записываются сами</small></li>';
   }
 
   function renderOverview() {
@@ -277,9 +300,37 @@
     api('add', { text: text }).then(function (r) {
       res.textContent = r.message || (r.ok ? 'Готово' : 'Не получилось');
       res.className = 'sheet__res ' + (r.ok ? 'ok' : 'err');
-      if (r.ok && r.kind === 'add') { $('#addText').value = ''; state.month = ym(state.data.today); refresh(true); setTimeout(closeSheet, 1600); }
+      if (r.ok && r.kind !== 'query') { $('#addText').value = ''; if (r.kind === 'add') state.month = ym(state.data.today); refresh(true); setTimeout(closeSheet, r.message && r.message.length > 60 ? 3200 : 1600); }
     }).catch(function (err) { res.textContent = 'Нет связи: ' + err.message; res.className = 'sheet__res err'; })
       .then(function () { btn.disabled = false; btn.textContent = 'Записать'; });
+  });
+
+  // фото чека: уменьшаем до 1600px, чтобы быстро ушло и нейросеть прочла
+  function shrink(file) {
+    return new Promise(function (ok, fail) {
+      var img = new Image(), url = URL.createObjectURL(file);
+      img.onload = function () {
+        var k = Math.min(1, 1600 / Math.max(img.width, img.height));
+        var c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        ok(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); fail(new Error('Не удалось открыть фото')); };
+      img.src = url;
+    });
+  }
+  $('#receiptInput').addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0]; e.target.value = '';
+    if (!file) return;
+    var btn = $('#receiptBtn'), label = btn.querySelector('span'), res = $('#addRes');
+    btn.classList.add('is-busy'); label.textContent = 'Читаю чек…'; res.textContent = ''; res.className = 'sheet__res';
+    shrink(file).then(function (b64) { return api('receipt', { image: b64 }); }).then(function (r) {
+      res.textContent = r.message || (r.ok ? 'Готово' : 'Не получилось');
+      res.className = 'sheet__res ' + (r.ok ? 'ok' : 'err');
+      if (r.ok) { state.month = ym(state.data.today); refresh(true); }
+    }).catch(function (err) { res.textContent = err.message; res.className = 'sheet__res err'; })
+      .then(function () { btn.classList.remove('is-busy'); label.textContent = 'Фото чека'; });
   });
 
   // бюджет

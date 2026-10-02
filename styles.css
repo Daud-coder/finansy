@@ -179,7 +179,7 @@ input:focus, textarea:focus { border-color: var(--accent); outline: none; }
 
 /* ---------- низ ---------- */
 .tabs {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: grid; grid-template-columns: repeat(3, 1fr);
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; display: grid; grid-template-columns: repeat(4, 1fr);
   padding: 8px max(12px, calc(50vw - 280px)) calc(8px + env(safe-area-inset-bottom));
   background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   border-top: 1px solid var(--line);
@@ -211,6 +211,22 @@ input:focus, textarea:focus { border-color: var(--accent); outline: none; }
 .field { display: grid; gap: 6px; font-size: 14px; color: var(--muted); font-weight: 600; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .chips button { padding: 7px 12px; border-radius: 999px; background: var(--card-2); font-size: 14px; font-weight: 600; }
+
+.btn--soft { background: var(--card-2); color: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.btn--soft svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.btn--soft.is-busy { opacity: .55; pointer-events: none; }
+
+/* ---------- ещё ---------- */
+.mlist li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); }
+.mlist li:first-child { border-top: 0; padding-top: 2px; }
+.mlist li b { font-size: 15px; font-weight: 700; }
+.mlist li span { font-size: 15px; font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mlist li small { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.mlist li .track { grid-column: 1 / -1; }
+.mlist .pos { color: var(--inc); }
+.mlist .neg { color: var(--exp); }
+.mlist .empty { display: block; padding: 6px 0; text-align: left; font-size: 14px; }
+.mhint { font-size: 13px; margin-top: 10px; }
 
 .toast { position: fixed; left: 50%; bottom: calc(150px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; z-index: 30;
   background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 700; transition: all .25s; pointer-events: none; max-width: 90vw; white-space: pre-line; text-align: center; }

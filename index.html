@@ -94,6 +94,30 @@
       <p class="hint">Нажми на категорию, чтобы задать лимит на месяц.</p>
       <ul class="blist" id="budgetList"></ul>
     </section>
+
+    <!-- Ещё: долги, цели, регулярные -->
+    <section class="view" data-view="more" hidden>
+      <div class="card">
+        <div class="card__head"><h2>Долги</h2><span class="card__sub" id="debtSub"></span></div>
+        <ul class="mlist" id="debtList"></ul>
+        <p class="hint mhint">«Дал Саше 500 в долг», «Саша вернул 200», «занял у Пети 1000», «удали долг Саши»</p>
+      </div>
+      <div class="card">
+        <div class="card__head"><h2>Цели</h2></div>
+        <ul class="mlist" id="goalList"></ul>
+        <p class="hint mhint">«Цель машина 300 тысяч», «отложил 5000 на машину», «взял 2000 из отпуска»</p>
+      </div>
+      <div class="card">
+        <div class="card__head"><h2>Регулярные платежи</h2><span class="card__sub" id="recSub"></span></div>
+        <ul class="mlist" id="recList"></ul>
+        <p class="hint mhint">«Аренда 15 000 каждое 1-е число», «убери регулярную аренду». Записываются сами в 9:00.</p>
+      </div>
+      <div class="card">
+        <div class="card__head"><h2>Подключения</h2></div>
+        <ul class="mlist" id="connList"></ul>
+        <p class="hint mhint">Подключаются в таблице: меню «Финансы».</p>
+      </div>
+    </section>
   </main>
 
   <button class="fab" id="fab" aria-label="Добавить запись"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -102,6 +126,7 @@
     <button data-tab="overview" aria-current="page"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 4"/></svg>Обзор</button>
     <button data-tab="ops"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>Операции</button>
     <button data-tab="budgets"><svg viewBox="0 0 24 24"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg>Бюджеты</button>
+    <button data-tab="more"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/></svg>Ещё</button>
   </nav>
 </div>
 
@@ -110,12 +135,17 @@
 <section class="sheet" id="addSheet" role="dialog" aria-modal="true" aria-labelledby="addTitle" hidden>
   <div class="sheet__grab"></div>
   <h2 id="addTitle">Новая запись</h2>
-  <p class="hint">Как голосом: «Кофе 80 и такси 150», «Вчера продукты 1200 наличкой», «Пришла зарплата 40 тысяч». Для голоса — микрофон на клавиатуре.</p>
+  <p class="hint">Как голосом: «Кофе 80 и такси 150», «Обед 20 долларов», «Нет, кофе был 120», «Дал Саше 500 в долг». Для голоса — микрофон на клавиатуре.</p>
   <form id="addForm">
     <textarea id="addText" rows="3" placeholder="Кофе 80" required></textarea>
     <div class="chips" id="chips"></div>
     <button class="btn btn--primary btn--block" type="submit" id="addBtn">Записать</button>
   </form>
+  <label class="btn btn--soft btn--block" id="receiptBtn">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+    <span>Фото чека</span>
+    <input type="file" id="receiptInput" accept="image/*" capture="environment" hidden>
+  </label>
   <p class="sheet__res" id="addRes" role="status"></p>
 </section>
 
