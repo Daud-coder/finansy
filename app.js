@@ -129,7 +129,7 @@
     var recTotal = rec.filter(function (r) { return r.type === 'expense'; }).reduce(function (s, r) { return s + r.amount; }, 0);
     $('#recSub').textContent = recTotal ? money(recTotal) + ' в месяц' : '';
     $('#recList').innerHTML = rec.length ? rec.sort(function (a, b) { return a.day - b.day; }).map(function (r) {
-      return '<li><b>' + esc(r.name) + '</b><span class="' + (r.type === 'income' ? 'pos' : '') + '">' + (r.type === 'income' ? '+' : '') + money(r.amount) + '</span><small>каждое ' + r.day + '-е · ' + esc(r.category) + '</small></li>';
+      return '<li><b>' + esc(r.name) + '</b><span class="' + (r.type === 'income' ? 'pos' : '') + '">' + (r.amount ? (r.type === 'income' ? '+' : '') + money(r.amount) : 'по факту') + '</span><small>каждое ' + r.day + '-е · ' + esc(r.category) + '</small></li>';
     }).join('') : '<li class="empty">Регулярных платежей нет</li>';
     $('#connList').innerHTML =
       '<li><b>Telegram</b><span class="' + (d.telegram ? 'pos' : '') + '">' + (d.telegram ? 'подключён' : '—') + '</span><small>напоминания о платежах, итоги недели и месяца</small></li>' +
